@@ -138,6 +138,6 @@ Use wasd to write the path you want to take (w up, s down, ...)
 
 Solution:
 pwntools to receive data and Breadth First Search algorithm from:
-http://bryukh.com/labyrinth-algorithms/#collapse-maze2graph-code to find a way.
+http://bryukh.com/labyrinth-algorithms to find a way.
 The list was in reversed order and the format was a bit more complicated to parse.
 See tower.py!
