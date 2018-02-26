@@ -1,0 +1,36 @@
+Vod Kanockers (100): Network100 Challenge
+Opening the link you get a simple webpage with an image:
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>The name is Kanockers. Vod Kanockers</title>
+  </head>
+  <body>
+    <!-- *Knock Knock* 88 156 983 1287 8743 5622 9123 -->
+    <img src="vod.jpg" />
+  </body>
+</html>
+
+Included is a comment with the *Knock Knock* hint. Quick googeling "network knock knock" revealed the Port knocking technique.
+
+Quick sequence of connection attempts on closed ports to open the destination port:
+https://wiki.archlinux.org/index.php/Port_knocking
+
+I used this simple shell script to do it:
+knock.sh:
+#!/bin/bash
+HOST=$1
+shift
+for ARG in "$@"
+do
+        nmap -Pn --host_timeout 100 --max-retries 0 -p $ARG $HOST
+done
+
+./knock.sh 34.249.81.124 88 156 983 1287 8743 5622
+followed by:
+ncat 34.249.81.124 9123
+which replied with the flag:
+flag{6283a3856ce4766d88c475668837184b}
+
